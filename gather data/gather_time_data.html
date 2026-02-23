@@ -9,10 +9,10 @@
 </head>
 
 <body>
-    <script src="tokenizer.js">
+    <script src="../utils/tokenizer.js">
     </script>
     <script>
-        const text = `В программировании точность важнее скорости, хотя ритм решает все.\n` +
+        const text1 = `В программировании точность важнее скорости, хотя ритм решает все.\n` +
             `Каждое нажатие на клавишу оставляет след в цифровом пространстве.\n` +
             `Биометрия - это не только отпечатки пальцев или сетчатка глаза.\n` +
             `Твой стиль набора текста так же уникален, как и твоя подпись.\n` +
@@ -36,6 +36,17 @@
             `Финальный рывок: проверяем стабильность твоего правого мизинца на Enter!\n` +
             `Три, два, один, завершаем этот масштабный эксперимент прямо сейчас.`
 
+        const text2 = `The seed does not see the flower when it begins to break.\n` +
+            `"It only knows the pressure of the earth and the pull of the light."\n` +
+            `\n` +
+            `Growth is often a series of quiet, invisible fractures.\n` +
+            `Each crack in the shell is not a failure, but a liberation.\n` +
+            `\n` +
+            `"To stay the same is to stay small," the wind whispers.\n` +
+            `So we stretch, we reach, and we become what we were meant to be.`;
+
+        const text = text2
+
         function init(text) {
             text_area = document.getElementById('input')
             content = ``
@@ -57,10 +68,12 @@
         }
 
         let ptr = 0
-        let start = -1
         let timestamp = -1
-        let tokens = []
-        let timestamps = []
+        let lastToken = -1
+        let delays = []
+        let transitions = []
+
+        let typos = {}
 
         window.onload = () => {
             init(text)
@@ -85,16 +98,30 @@
                 return;
             }
 
-            if (text[ptr] === char) {
-                if (start === -1) {
-                    start = Date.now();
-                    timestamp = 0;
+            const trueChar = text[ptr]
+
+            if (token == 0 && getToken(trueChar) == 0) {                
+                if (typos[trueChar] === undefined) {
+                    typos[trueChar] = [char]
+                }
+                else {
+                    typos[trueChar].push(char)
+                }
+            }
+
+            if (trueChar === char) {
+                if (timestamp === -1) {
+                    timestamp = Date.now();
                 } else {
-                    timestamp = Date.now() - start;
+                    currentTime = Date.now()
+
+                    delays.push(currentTime - timestamp)
+                    transitions.push(`${lastToken}-${token}`)
+
+                    timestamp = currentTime
                 }
 
-                tokens.push(token)
-                timestamps.push(timestamp);
+                lastToken = token
 
                 document.getElementById(`c${ptr}`).style.color = 'blue';
                 document.getElementById(`c${ptr}`).style.fontWeight = 'normal';
@@ -114,13 +141,31 @@
             }
         }
 
-        function exportCSV() {
-            let csvContent = "timestamp,token\n";
+        function exportTimingData() {
+            let csvContent = "delay,transition\n";
 
-            for (let ind = 0; ind < timestamps.length; ind++) {
-                csvContent += `${timestamps[ind]},${tokens[ind]}\n`;
+            for (let ind = 0; ind < transitions.length; ind++) {
+                csvContent += `${delays[ind]},${transitions[ind]}\n`;
             }
 
+            exportCSV(csvContent)
+        }
+
+        function exportAccurayData() {
+            let csvContent = "original,typed\n";
+
+            for (const [key, value] of Object.entries(typos)) {
+                console.log(key);
+
+                value.forEach(element => {
+                    csvContent += `${key},${element}\n`;
+                });                
+            }
+
+            exportCSV(csvContent)
+        }
+
+        function exportCSV(csvContent) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
 
@@ -135,7 +180,8 @@
         }
     </script>
 
-    <button onclick="exportCSV()">export</button>
+    <button onclick="exportTimingData()">export timing data</button>
+    <button onclick="exportAccurayData()">export accuracy data</button>
     <div id="input">
         <span>a</span><span>b</span><span>c</span>
     </div>

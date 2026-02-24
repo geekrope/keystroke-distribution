@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>nauka</title>
+    <style>
+        html,
+        body {
+            height: 100vh;
+        }
+
+        body {
+            display: flex;
+            flex-flow: column;
+            overflow: hidden;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="../utils/tokenizer.js">
+    </script>
+    <script src="../utils/export.js">
+    </script>
+    <script>
+        const words = [
+            "level", "lever", "levee", "revel", "refer", "reed", "deer", "free", "feet", "tree",
+            "dead", "bead", "beed", "beef", "seed", "feed", "deed", "bred", "vied", "died",
+            "fled", "sled", "wed", "red", "bed", "fed", "get", "bet", "set", "met", "net",
+            "pool", "poll", "polo", "look", "loom", "moon", "soon", "noon", "boon", "loop",
+            "keep", "deep", "peep", "jeep", "weep", "beep", "keep", "seek", "meek", "week",
+            "think", "thank", "tank", "hank", "bank", "rank", "sink", "link", "pink", "wink",
+            "might", "night", "fight", "light", "right", "sight", "tight", "eight", "height",
+            "small", "stall", "shall", "skull", "skill", "still", "spill", "drill", "frill",
+            "point", "joint", "mount", "count", "bound", "round", "sound", "found", "ground",
+            "track", "trace", "tract", "trade", "train", "trail", "trait", "trash", "treat",
+            "black", "blank", "blast", "blame", "blade", "blaze", "bleed", "blend", "bless",
+            "check", "chess", "chart", "chain", "chair", "cheap", "cheat", "chief", "child",
+            "clear", "clean", "clerk", "click", "cliff", "climb", "clock", "close", "cloud",
+            "drive", "drink", "dress", "dream", "dread", "drift", "drill", "drain", "draft",
+            "front", "frost", "fruit", "fresh", "frame", "frank", "fraud", "freak", "fresh",
+            "grand", "grant", "graph", "grasp", "grass", "grave", "great", "green", "greet",
+            "phone", "photo", "phase", "phrase", "plant", "plane", "plate", "place", "plain",
+            "shake", "shape", "share", "sharp", "sheet", "shelf", "shell", "shift", "shine",
+            "shirt", "shock", "shoot", "shore", "short", "shout", "show", "shut", "side",
+            "space", "speak", "speed", "spell", "spend", "spent", "spoke", "sport", "spot",
+            "stand", "stage", "stair", "stake", "stamp", "stand", "stare", "start", "state",
+            "steam", "steel", "steer", "stick", "still", "stock", "stone", "stood", "stop",
+            "store", "storm", "story", "study", "stuff", "style", "sugar", "suit", "sure"
+        ];
+
+        function set_text(text) {
+            text_area = document.getElementById('input')
+            content = ``
+
+            for (let ind = 0; ind < text.length; ind++) {
+                let c = text[ind]
+                if (c == '\n') {
+                    content += `<br id = "c${ind}">`
+                }
+                else {
+                    if (c == ' ') {
+                        c = '&nbsp;'
+                    }
+                    content += `<span style = 'outline-style: solid; font-size: 144px; outline-width: 1px; padding: 2px; margin: 3px; display: inline-block;' id = "c${ind}">${c}</span>`
+                }
+            }
+
+            text_area.innerHTML = content;
+            document.getElementById("c0").style.fontWeight = "bold";            
+        }
+
+        function permutation(size) {
+            const perm = [];
+
+            for (let i = 0; i < size; i++) {
+                perm.push(i);
+            }
+
+            // generate via transpositions
+            for (let i = size - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+
+                const temp = perm[i];
+                perm[i] = perm[j];
+                perm[j] = temp;
+            }
+
+            return perm;
+        }
+
+        let permuted_words = [];
+        let currentWord = "";
+
+        function next() {
+            document.getElementById("counter").innerHTML = wordPtr + 1;
+
+            ptr = 0;
+
+            if (wordPtr < permuted_words.length) {
+                currentWord = permuted_words[wordPtr];
+                set_text(currentWord);
+                wordPtr++;
+            }
+            else {
+                currentWord = "";
+                set_text("");
+                window.alert("end of the list");
+            }
+
+            typedWord = ""
+        }
+
+        let wordPtr = 0
+        let ptr = 0
+        let typedWord = ""
+
+        let typos = {}
+
+        window.onload = () => {
+            const perm = permutation(words.length)
+            for (let j = 0; j < perm.length; j++) {
+                permuted_words.push(words[perm[j]])
+            }
+
+            next()
+        }
+
+        window.onkeydown = (ev) => {
+            if ([' ', 'Enter', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+                ev.preventDefault();
+            }
+        }
+
+        window.onkeyup = (ev) => {
+            char = ev.key
+
+            if (char == 'Enter') {
+                if (ptr == currentWord.length) {
+                    for (let index = 0; index < currentWord.length; index++) {
+                        trueChar = currentWord[index];
+                        char = typedWord[index];
+
+                        if (typos[trueChar] === undefined) {
+                            typos[trueChar] = [char];
+                        }
+                        else {
+                            typos[trueChar].push(char);
+                        }
+                    }
+                    next();
+                }
+            }
+            else if (char == 'Escape') {
+                next();
+            }
+            else if (getToken(char) == 0) {
+                if (ptr >= currentWord.length) {
+                    return
+                }
+
+                typedWord += char;
+
+                if (currentWord[ptr] === char) {
+                    document.getElementById(`c${ptr}`).style.color = 'blue';
+                    document.getElementById(`c${ptr}`).style.fontWeight = 'normal';
+
+                    if (ptr < currentWord.length - 1) {
+                        document.getElementById(`c${ptr + 1}`).style.fontWeight = 'bold';
+                    }
+                } else {
+                    console.log(char)
+                    document.getElementById(`c${ptr}`).style.color = 'red';
+                }
+
+                ptr++;
+            }
+        }
+
+        function exportAccuracyData() {
+            let csvContent = "original,typed\n";
+
+            for (const [key, value] of Object.entries(typos)) {
+                console.log(key);
+
+                value.forEach(element => {
+                    csvContent += `${key},${element}\n`;
+                });
+            }
+
+            exportCSV(csvContent, "accuracy_data.csv")
+        }
+    </script>
+
+    <button style="width: 200px; margin: 10px;" onclick="exportAccuracyData()">export accuracy data</button>
+    <span style="font-size: 36px;" id="counter"></span>
+    <div style="flex: 1; display: flex; flex-direction: row; align-items: center;">
+        <div id="input">
+            <span>a</span><span>b</span><span>c</span>
+        </div>
+    </div>
+</body>
+
+</html>

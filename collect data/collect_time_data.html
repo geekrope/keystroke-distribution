@@ -11,6 +11,8 @@
 <body>
     <script src="../utils/tokenizer.js">
     </script>
+    <script src="../utils/export.js">
+    </script>
     <script>
         const text1 = `В программировании точность важнее скорости, хотя ритм решает все.\n` +
             `Каждое нажатие на клавишу оставляет след в цифровом пространстве.\n` +
@@ -78,7 +80,8 @@
                 }
             }
 
-            text_area.innerHTML = content
+            document.getElementById("c0").style.fontWeight = "bold";
+            text_area.innerHTML = content;
         }
 
         let ptr = 0
@@ -86,8 +89,6 @@
         let lastToken = -1
         let delays = []
         let transitions = []
-
-        let typos = {}
 
         window.onload = () => {
             init(text)
@@ -114,15 +115,6 @@
 
             const trueChar = text[ptr]
 
-            if (token == 0 && getToken(trueChar) == 0) {
-                if (typos[trueChar] === undefined) {
-                    typos[trueChar] = [char]
-                }
-                else {
-                    typos[trueChar].push(char)
-                }
-            }
-
             if (trueChar === char) {
                 if (timestamp === -1) {
                     timestamp = Date.now();
@@ -140,7 +132,7 @@
                 document.getElementById(`c${ptr}`).style.color = 'blue';
                 document.getElementById(`c${ptr}`).style.fontWeight = 'normal';
 
-                if (ptr < text.length + 1) {
+                if (ptr < text.length - 1) {
                     document.getElementById(`c${ptr + 1}`).style.fontWeight = 'bold';
                 }
 
@@ -164,38 +156,9 @@
 
             exportCSV(csvContent, "time_data.csv")
         }
-
-        function exportAccurayData() {
-            let csvContent = "original,typed\n";
-
-            for (const [key, value] of Object.entries(typos)) {
-                console.log(key);
-
-                value.forEach(element => {
-                    csvContent += `${key},${element}\n`;
-                });
-            }
-
-            exportCSV(csvContent, "accuracy_data.csv")
-        }
-
-        function exportCSV(csvContent, fileName) {
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", fileName);
-            link.style.visibility = 'hidden';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
     </script>
 
     <button onclick="exportTimingData()">export timing data</button>
-    <button onclick="exportAccurayData()">export accuracy data</button>
     <div id="input">
         <span>a</span><span>b</span><span>c</span>
     </div>

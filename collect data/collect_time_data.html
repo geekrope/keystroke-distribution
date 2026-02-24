@@ -36,14 +36,28 @@
             `Финальный рывок: проверяем стабильность твоего правого мизинца на Enter!\n` +
             `Три, два, один, завершаем этот масштабный эксперимент прямо сейчас.`
 
-        const text2 = `The seed does not see the flower when it begins to break.\n` +
-            `"It only knows the pressure of the earth and the pull of the light."\n` +
-            `\n` +
-            `Growth is often a series of quiet, invisible fractures.\n` +
-            `Each crack in the shell is not a failure, but a liberation.\n` +
-            `\n` +
-            `"To stay the same is to stay small," the wind whispers.\n` +
-            `So we stretch, we reach, and we become what we were meant to be.`;
+        const text2 = `Autumn is the quietest teacher I have ever known.\n` +
+            `It does not shout, argue, or demand attention; it simply changes the air.\n` +
+            `The temperature drops from 18C to 9C, and suddenly everything feels precise.\n` +
+            `Leaves shift from green to gold, orange, and dark red - like a controlled experiment.\n` +
+            `When I walk at 7:30 a.m., the streets are silent, almost analytical.\n` +
+            `There is a pattern in the wind: 1 gust, 2 pauses, then a longer breath.\n` +
+            `I notice details I ignored in summer: cracks in the pavement, distant echoes, tiny sounds.\n` +
+            `Autumn does not represent an ending; it represents transition (phase 2 to phase 3).\n` +
+            `Each falling leaf follows gravity's rule: F equals m * g.\n` +
+            `Nothing dramatic happens, yet everything transforms step-by-step.\n` +
+            `Even the sky looks different - deeper blue, scattered clouds, 3 or 4 at a time.\n` +
+            `People walk faster, hands in pockets, thoughts hidden behind quiet faces.\n` +
+            `The smell of rain mixes with cold metal and wet wood.\n` +
+            `In this season, time feels measurable, almost numeric: day 245, day 246, day 247.\n` +
+            `Nature reduces noise levels from 100% to maybe 40%.\n` +
+            `Silence becomes a variable, not an absence.\n` +
+            `Sometimes I stop and count my steps: 10, 20, 30... then I reset to 0.\n` +
+            `Autumn reminds me that systems evolve - slowly, logically, inevitably.\n` +
+            `Nothing resists the change; resistance would be inefficient.\n` +
+            `And so the world recalculates itself, quietly, precisely, again & again.\n` +
+            `By November, the trees stand bare, like minimalistic structures.\n` +
+            `Yet even in this simplicity, there is design, order, and meaning.`;
 
         const text = text2
 
@@ -100,7 +114,7 @@
 
             const trueChar = text[ptr]
 
-            if (token == 0 && getToken(trueChar) == 0) {                
+            if (token == 0 && getToken(trueChar) == 0) {
                 if (typos[trueChar] === undefined) {
                     typos[trueChar] = [char]
                 }
@@ -148,7 +162,7 @@
                 csvContent += `${delays[ind]},${transitions[ind]}\n`;
             }
 
-            exportCSV(csvContent)
+            exportCSV(csvContent, "time_data.csv")
         }
 
         function exportAccurayData() {
@@ -159,19 +173,19 @@
 
                 value.forEach(element => {
                     csvContent += `${key},${element}\n`;
-                });                
+                });
             }
 
-            exportCSV(csvContent)
+            exportCSV(csvContent, "accuracy_data.csv")
         }
 
-        function exportCSV(csvContent) {
+        function exportCSV(csvContent, fileName) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
 
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", "my_typing_data.csv");
+            link.setAttribute("download", fileName);
             link.style.visibility = 'hidden';
 
             document.body.appendChild(link);
